@@ -20,21 +20,11 @@ public class Matricula implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
-
     @Column(name = "data_matricula", nullable = false)
     private LocalDate dataMatricula;
 
     @Column(nullable = false)
     private BigDecimal valor;
-
-    @Column(name = "valor_mensalidade", nullable = false)
-    private BigDecimal valorMensalidade;
-
-    @Column(name = "vencimento_menslaidade", nullable = false)
-    private Integer vencimentoMensalidade;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id", nullable = false)

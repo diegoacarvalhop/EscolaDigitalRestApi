@@ -12,12 +12,11 @@ import java.math.BigDecimal;
 public class MatriculaDTO {
 
     private long id;
-    private Aluno aluno;
     private String dataMatricula;
     private BigDecimal valor;
     private BigDecimal valorMensalidade;
     private Integer vencimentoMensalidade;
-    private Status status;
+    private StatusDTO statusDto;
     private String msgSucesso;
     private String msgErro;
 

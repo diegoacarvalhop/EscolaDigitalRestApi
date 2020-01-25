@@ -1,20 +1,11 @@
 package br.com.escoladigital.restapi.models;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "ALUNO")
@@ -40,11 +31,15 @@ public class Aluno implements Serializable {
 	@Column(name = "nome_pai")
 	private String nomePai;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "matricula_id", nullable = false)
+	private Matricula matricula;
+
+	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "endereco_id", nullable = false)
 	private Endereco endereco;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "contato_id", nullable = false)
 	private Contato contato;
 

@@ -1,13 +1,5 @@
 package br.com.escoladigital.restapi.services;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import br.com.escoladigital.restapi.controllers.StatusController;
 import br.com.escoladigital.restapi.dtos.StatusDTO;
 import br.com.escoladigital.restapi.enuns.ValidacaoEnum;
@@ -15,6 +7,13 @@ import br.com.escoladigital.restapi.models.Aluno;
 import br.com.escoladigital.restapi.models.Status;
 import br.com.escoladigital.restapi.repositories.AlunoRepository;
 import br.com.escoladigital.restapi.repositories.StatusRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class StatusService {
@@ -31,15 +30,18 @@ public class StatusService {
 		this.repositoryAluno = repositoryAluno;
 	}
 
-	public StatusDTO salvar(Status status) {
-		logger.info("Salvando Status " + status.getDescricao() + ".");
-		String validacao = validarStatus(status, true);
-		if (validacao.equals(ValidacaoEnum.OK.getDescricao())) {
-			status.setNemotecnico(status.getNemotecnico().toUpperCase());
-			status.setAtivo(ValidacaoEnum.SIM.getDescricao());
-			return validarStatusExistente(status);
+    public StatusService() {
+        super();
+    }
+
+    public StatusDTO salvar(StatusDTO statusDto) {
+		logger.info("Salvando Status " + statusDto.getDescricao() + ".");
+		if (validarStatus(statusDto).equals(ValidacaoEnum.OK.getDescricao())) {
+			statusDto.setNemotecnico(statusDto.getNemotecnico().toUpperCase());
+			statusDto.setAtivo(ValidacaoEnum.SIM.getDescricao());
+			return validarStatusExistente(statusDto);
 		} else {
-			return montarDTOErro(status, validacao);
+			return montarDTOErro(validarStatus(statusDto));
 		}
 	}
 
@@ -57,25 +59,25 @@ public class StatusService {
 		logger.info("Listando Status pelo ID.");
 		Status status = repository.findById(id);
 		if (status == null) {
-			return montarDTOErro(null, ValidacaoEnum.NAO_EXISTE.getDescricao());
+			return montarDTOErro(ValidacaoEnum.NAO_EXISTE.getDescricao());
 		} else {
 			return montarDTOSucesso(status, false, null);
 		}
 	}
 
-	public StatusDTO editar(long id, Status status) {
+	public StatusDTO editar(long id, StatusDTO statusDto) {
 		Status statusEditar = repository.findById(id);
 		if (statusEditar == null) {
-			return montarDTOErro(null, ValidacaoEnum.NAO_EXISTE.getDescricao());
+			return montarDTOErro(ValidacaoEnum.NAO_EXISTE.getDescricao());
 		} else {
-			if (validarStatus(status, false) == ValidacaoEnum.OK.getDescricao()) {
-				logger.info("Editando Status ." + status.getDescricao() + ".");
-				statusEditar.setDescricao(status.getDescricao());
-				statusEditar.setNemotecnico(status.getNemotecnico().toUpperCase());
-				statusEditar.setAtivo(status.getAtivo());
+			if (validarStatus(statusDto) == ValidacaoEnum.OK.getDescricao()) {
+				logger.info("Editando Status ." + statusDto.getDescricao() + ".");
+				statusEditar.setDescricao(statusDto.getDescricao());
+				statusEditar.setNemotecnico(statusDto.getNemotecnico().toUpperCase());
+				statusEditar.setAtivo(statusDto.getAtivo());
 				return montarDTOSucesso(repository.save(statusEditar), true, ValidacaoEnum.EDITAR.getDescricao());
 			} else {
-				return montarDTOErro(null, validarStatus(status, false));
+				return montarDTOErro(validarStatus(statusDto));
 			}
 		}
 	}
@@ -83,41 +85,52 @@ public class StatusService {
 	public StatusDTO deletar(long id) {
 		Status status = repository.findById(id);
 		if (status == null) {
-			return montarDTOErro(null, ValidacaoEnum.NAO_EXISTE.getDescricao());
+			return montarDTOErro(ValidacaoEnum.NAO_EXISTE.getDescricao());
 		} else {
 			if (validarDeletar(status)) {
 				logger.info("Deletando Status " + status.getDescricao() + ".");
 				repository.deleteById(id);
 				return montarDTOSucesso(null, true, ValidacaoEnum.DELETAR.getDescricao());
 			}
-			return montarDTOErro(null, ValidacaoEnum.FK.getDescricao());
+			return montarDTOErro(ValidacaoEnum.FK.getDescricao());
 		}
+	}
+
+	public StatusDTO montarDTO(Status status) {
+		StatusDTO statusDto = new StatusDTO();
+		statusDto.setId(status.getId());
+		statusDto.setDescricao(status.getDescricao());
+		statusDto.setNemotecnico(status.getNemotecnico());
+		statusDto.setAtivo(status.getAtivo());
+		return statusDto;
+	}
+
+	public Status montarStatus(StatusDTO statusDto) {
+		return repository.findById(statusDto.getId());
 	}
 
 	public StatusDTO montarDTOSucesso(Status status, Boolean preencheMsgSucesso, String validacao) {
 		logger.info("Montando objeto de sucesso.");
-		StatusDTO dto = new StatusDTO();
+		StatusDTO statusDto = null;
 		if (status != null) {
-			dto.setId(status.getId());
-			dto.setDescricao(status.getDescricao());
-			dto.setNemotecnico(status.getNemotecnico());
-			dto.setAtivo(status.getAtivo());
+			statusDto = montarDTO(status);
 			if (preencheMsgSucesso && validacao.equals(ValidacaoEnum.SALVAR.getDescricao())) {
-				dto.setMsgSucesso("Status " + status.getDescricao() + " cadastrado com sucesso.");
+				statusDto.setMsgSucesso("Status " + status.getDescricao() + " cadastrado com sucesso.");
 			} else if (preencheMsgSucesso && validacao.equals(ValidacaoEnum.EDITAR.getDescricao())) {
-				dto.setMsgSucesso("Status " + status.getDescricao() + " editado com sucesso.");
+				statusDto.setMsgSucesso("Status " + status.getDescricao() + " editado com sucesso.");
 			}
 		} else if (preencheMsgSucesso && validacao.equals(ValidacaoEnum.DELETAR.getDescricao())) {
-			dto.setMsgSucesso("Status deletado com sucesso.");
+			statusDto = new StatusDTO();
+			statusDto.setMsgSucesso("Status deletado com sucesso.");
 		}
-		return dto;
+		return statusDto;
 	}
 
-	public StatusDTO montarDTOErro(Status status, String validacao) {
+	public StatusDTO montarDTOErro(String validacao) {
 		logger.info("Montando objeto de erro.");
 		StatusDTO dto = new StatusDTO();
 		if (validacao.equals(ValidacaoEnum.EXISTE.getDescricao())) {
-			dto.setMsgErro("Já existe um Status com o nemotécnico " + status.getNemotecnico() + ".");
+			dto.setMsgErro("Já existe um Status com esse nemotécnico.");
 		}
 		if (validacao.equals(ValidacaoEnum.BRANCO.getDescricao())) {
 			dto.setMsgErro("Não pode existir campos em branco.");
@@ -134,32 +147,27 @@ public class StatusService {
 		return dto;
 	}
 
-	public StatusDTO validarStatusExistente(Status status) {
-		logger.info("Validando se o Status " + status.getDescricao() + " já existe.");
-		Status statusValidado = repository.findByNemotecnico(status.getNemotecnico());
+	public StatusDTO validarStatusExistente(StatusDTO statusDto) {
+		logger.info("Validando se o Status " + statusDto.getDescricao() + " já existe.");
+		Status statusValidado = repository.findByNemotecnico(statusDto.getNemotecnico());
 		if (statusValidado != null) {
-			return montarDTOErro(status, ValidacaoEnum.EXISTE.getDescricao());
+			return montarDTOErro(ValidacaoEnum.EXISTE.getDescricao());
 		} else {
-			return montarDTOSucesso(repository.save(status), true, ValidacaoEnum.SALVAR.getDescricao());
+			statusValidado = new Status();
+			statusValidado.setDescricao(statusDto.getDescricao());
+			statusValidado.setNemotecnico(statusDto.getNemotecnico());
+			statusValidado.setAtivo(statusDto.getAtivo());
+			return montarDTOSucesso(repository.save(statusValidado), true, ValidacaoEnum.SALVAR.getDescricao());
 		}
 	}
 
-	public String validarStatus(Status status, boolean salvar) {
+	public String validarStatus(StatusDTO statusDto) {
 		logger.info("Validando campos do Status.");
 		try {
-			if (salvar) {
-				if (status.getDescricao().trim().isEmpty() || status.getNemotecnico().trim().isEmpty()) {
-					return ValidacaoEnum.BRANCO.getDescricao();
-				} else {
-					return ValidacaoEnum.OK.getDescricao();
-				}
+			if (statusDto.getDescricao().trim().isEmpty() || statusDto.getNemotecnico().trim().isEmpty()) {
+				return ValidacaoEnum.BRANCO.getDescricao();
 			} else {
-				if (status.getDescricao().trim().isEmpty() || status.getNemotecnico().trim().isEmpty()
-						|| status.getAtivo().isEmpty()) {
-					return ValidacaoEnum.BRANCO.getDescricao();
-				} else {
-					return ValidacaoEnum.OK.getDescricao();
-				}
+				return ValidacaoEnum.OK.getDescricao();
 			}
 		} catch (NullPointerException erro) {
 			return ValidacaoEnum.NULL.getDescricao();

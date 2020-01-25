@@ -17,7 +17,8 @@ public enum ValidacaoEnum {
 	NAO("N"), 
 	FK("chaveEstrangeira"), 
 	ZERO("zero"),
-	STATUS_NAO_EXISTE("statusNaoExiste");
+	STATUS_NAO_EXISTE("statusNaoExiste"),
+	ERRO("erro");
 
 	private String descricao;
 

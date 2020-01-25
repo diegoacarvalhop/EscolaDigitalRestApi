@@ -30,11 +30,14 @@ public class Mensalidade implements Serializable {
     @Column(nullable = false)
     private BigDecimal valor;
 
-    @Column(name = "mes_ano", nullable = false)
-    private String mesAno;
-
     @Column(nullable = false)
     private Integer vencimento;
+
+    @Column(name = "mes", nullable = false)
+    private String mes;
+
+    @Column(name = "ano", nullable = false)
+    private Integer ano;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id", nullable = false)

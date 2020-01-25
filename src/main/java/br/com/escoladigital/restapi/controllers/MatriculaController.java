@@ -19,10 +19,10 @@ public class MatriculaController {
         return service.salvar(matriculaDto);
     }
 
-    @GetMapping("/listarPorAluno/{id}")
-    public MatriculaDTO listarPorId(@PathVariable(value = "id") long id) {
-        return service.listarPorAluno(id);
-    }
+//    @GetMapping("/listarPorAluno/{id}")
+//    public MatriculaDTO listarPorId(@PathVariable(value = "id") long id) {
+//        return service.listarPorAluno(id);
+//    }
 
     @PutMapping("/editar/{id}")
     public MatriculaDTO editar(@PathVariable(value = "id") long id, @RequestBody MatriculaDTO matriculaDto) {

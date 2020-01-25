@@ -24,8 +24,8 @@ public class StatusController {
 	private StatusService service;
 
 	@PostMapping("/salvar")
-	public StatusDTO salvar(@RequestBody Status status) {
-		return service.salvar(status);
+	public StatusDTO salvar(@RequestBody StatusDTO statusDto) {
+		return service.salvar(statusDto);
 	}
 
 	@GetMapping("/listarTodos")
@@ -40,8 +40,8 @@ public class StatusController {
 	}
 
 	@PutMapping("/editar/{id}")
-	public StatusDTO editar(@PathVariable(value = "id") long id, @RequestBody Status status) {
-		return service.editar(id, status);
+	public StatusDTO editar(@PathVariable(value = "id") long id, @RequestBody StatusDTO statusDto) {
+		return service.editar(id, statusDto);
 	}
 
 	@DeleteMapping("/deletar/{id}")
